@@ -9,7 +9,10 @@ uname -a
 
 # Number of physical processors
 echo -ne '#CPU PHYSICAL:\t\t\t'
-grep processor /proc/cpuinfo | cut -d' ' -f2
+# We use tail to get only the last processor index
+LAST_PROC=$(grep processor /proc/cpuinfo | tail -n 1 | cut -d' ' -f2)
+# We add 1 as the index begins at 0
+echo $((LAST_PROC + 1))
 
 # Number of virtual processors
 echo -ne '#VCPU:\t\t\t\t'
@@ -29,14 +32,16 @@ df / -hm | awk -F' +' 'NR==2 { \
 
 # CPU usage
 echo -ne '#CPU LOAD:\t\t\t'
-IDLE=$( top -bn 1 | awk -F', +' 'NR==3 {print $4}' )
+
+# We remove "id" and replace "," by "." to be accepted by 'bc' command
+IDLE=$( top -bn 1 | awk -F', +' 'NR==3 {print $4}' | sed 's/id//g' | sed 's/,/./g' )
 if [ -n "$IDLE" ] && [[ $IDLE == *"wa" ]]; then
 	echo "0.0%"
 else
 	IDLE=$( echo $IDLE | cut -d' ' -f1 )
 	bc -h &> /dev/null # Check if 'bc' command is available
 	if [ $? -eq 0 ]; then
-		IDLE=$( bc -l <<<"100 - $IDLE" )
+		IDLE=$( bc -l <<< "100 - $IDLE" )
 	fi
 	echo "$IDLE%"
 fi
