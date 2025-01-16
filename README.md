@@ -117,6 +117,22 @@ By using this, you'll automatically broadcast updated system information on all 
 
 This setup works well for showing live system data across all logged-in users, creating an automated dashboard that can be seen on every computer in the network.
 
+### Output:
+The script will provide a system report with sections like:
+```
+#ARCHITECTURE:              x86_64
+#CPU PHYSICAL:              4
+#VCPU:                      4
+#MEMORY USAGE:              1234/4096MB (30.23%)
+#DISK USAGE:                15/100GB (10%)
+#CPU LOAD:                  20.0%
+#LAST BOOT:                 2025-01-01 12:00:00
+#LVM USE:                   yes
+#TCP CONNECTIONS:           12 ESTABLISHED
+#USER LOG:                  4
+#NETWORK:                   IP 192.168.1.1 (00:14:22:01:01:01)
+#SUDO:                      25 cmd
+```
 ---
 
 ## **Dependencies**
