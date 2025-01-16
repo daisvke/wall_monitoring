@@ -30,12 +30,11 @@ df / -hm | awk -F' +' 'NR==2 { \
 # CPU usage
 echo -ne '#CPU LOAD:\t\t\t'
 IDLE=$( top -bn 1 | awk -F', +' 'NR==3 {print $4}' )
-if [ -n "$IDLE" ] && [[ $IDLE == *"wa" ]]
-then
+if [ -n "$IDLE" ] && [[ $IDLE == *"wa" ]]; then
 	echo "0.0%"
 else
 	IDLE=$( echo $IDLE | cut -d' ' -f1 )
-	bc &> /dev/null # Check if 'bc' command is available
+	bc -h &> /dev/null # Check if 'bc' command is available
 	if [ $? -eq 0 ]; then
 		IDLE=$( bc -l <<<"100 - $IDLE" )
 	fi
@@ -58,7 +57,7 @@ echo -ne '#LVM USE:\t\t\t'
 # Check if lvm command is available
 LVM_RES=$(lvm pvdisplay &> /dev/null)
 if [ $? -eq 0 ]; then
-	LVM=$(LVM_RES | awk 'NR==2 { print $1 }')
+	LVM=$($LVM_RES | awk 'NR==2 { print $1 }')
 	if [ -n "$LVM" ] && [ "$LVM" = "PV" ]; then
 		echo yes
 	else
