@@ -70,7 +70,7 @@ No installation is required. Simply copy the script and execute it on your Linux
    Execute the script by running the following command in your terminal:
 
    ```bash
-   ./monitoring.sh
+   sudo ./monitoring.sh
    ```
 
 ### **Launcher Script**
@@ -91,12 +91,31 @@ In case you want to automate the monitoring process and display the system infor
    Execute the launcher script to generate and broadcast the system information:
 
    ```bash
-   ./launcher.sh
+   sudo ./launcher.sh
    ```
 
    - This will run `monitoring.sh` (or `launcher.sh`) and direct the output to a temporary file `output`.
    - The `wall` command is then used to broadcast the output to all logged-in users.
    - Finally, the `output` file is deleted.
+
+### Automated Display Using `watch`
+
+To automate the display of system statistics across multiple machines, you can set up a recurring display with the following command:
+
+```bash
+watch -n 10 sudo ./launcher.sh
+```
+
+### Explanation:
+- `watch`: This command runs the specified command at regular intervals.
+- `-n 10`: This sets the interval to 10 seconds (you can adjust the value as needed).
+- `sudo ./launcher.sh`: This runs the `launcher.sh` script, which in turn executes `monitoring.sh`, generating system statistics and broadcasting them to all users via the `wall` command.
+
+By using this, you'll automatically broadcast updated system information on all machines every 10 seconds (or whatever interval you choose). This can be useful for continuous monitoring or displaying real-time status updates on multiple systems in a network.
+
+---
+
+This setup works well for showing live system data across all logged-in users, creating an automated dashboard that can be seen on every computer in the network.
 
 ---
 

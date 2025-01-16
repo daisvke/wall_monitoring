@@ -30,12 +30,15 @@ df / -hm | awk -F' +' 'NR==2 { \
 # CPU usage
 echo -ne '#CPU LOAD:\t\t\t'
 IDLE=$( top -bn 1 | awk -F', +' 'NR==3 {print $4}' )
-if [[ $IDLE == *"wa" ]]
+if [ -n "$IDLE" ] && [[ $IDLE == *"wa" ]]
 then
 	echo "0.0%"
 else
 	IDLE=$( echo $IDLE | cut -d' ' -f1 )
-	IDLE=$( bc -l <<<"100 - $IDLE" )
+	bc &> /dev/null # Check if 'bc' command is available
+	if [ $? -eq 0 ]; then
+		IDLE=$( bc -l <<<"100 - $IDLE" )
+	fi
 	echo "$IDLE%"
 fi
 
@@ -52,12 +55,17 @@ echo "$DATE $TIME"
 
 # LVM status
 echo -ne '#LVM USE:\t\t\t'
-LVM=$(lvm pvdisplay | awk 'NR==2 { print $1 }')
-if [ $LVM = "PV" ]
-then
-	echo yes
+# Check if lvm command is available
+LVM_RES=$(lvm pvdisplay &> /dev/null)
+if [ $? -eq 0 ]; then
+	LVM=$(LVM_RES | awk 'NR==2 { print $1 }')
+	if [ -n "$LVM" ] && [ "$LVM" = "PV" ]; then
+		echo yes
+	else
+		echo no
+	fi
 else
-	echo no
+    echo "LVM tools not installed or accessible"
 fi
 
 # TCP active connections
@@ -65,7 +73,7 @@ echo -ne '#TCP CONNECTIONS:\t\t'
 VAL=0
 while read line
 do	
-	if [[ $line = *"ESTABLISHED"* ]]
+	if [ -n "$line" ] && [[ $line = *"ESTABLISHED"* ]]
 	then
 		((VAL++))
 	fi
@@ -84,7 +92,10 @@ echo "IP $IP ($MAC)"
 
 # Number of commands executed by sudo
 echo -ne '#SUDO\t\t\t\t'
-CMD=$(grep COMMAND /var/log/sudo/sudo.log | wc -l);
-echo "$CMD cmd"
-
-#echo -e '\n=========================================================================\n'
+if [ -f /var/log/sudo/sudo.log ]; then # Check if the sudo log file exists
+    echo "The file /var/log/sudo/sudo.log exists."
+	CMD=$(grep COMMAND /var/log/sudo/sudo.log | wc -l);
+	echo "$CMD cmd"
+else
+    echo "The file /var/log/sudo/sudo.log does not exist."
+fi
